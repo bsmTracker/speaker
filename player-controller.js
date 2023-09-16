@@ -1,6 +1,7 @@
 const FFplay = require("ffplay");
 const SERVER_END_POINT = require("./SERVER");
 const { exec } = require("shelljs");
+const ffmpeg = require("ffmpeg");
 
 let current = null;
 
@@ -17,13 +18,7 @@ module.exports = (playerSocket) => {
     }
     src += data.src;
     const startTimeMs = data.startTime || 0;
-    const startTimeS = startTimeMs / 1000;
-    const hour = Math.floor(startTimeS / 60 ** 2);
-    const minute = Math.floor((startTimeS % 60 ** 2) / 60);
-    const second = startTimeS % 60;
-    const startTimeStr = `${hour}:${minute}:${second}`;
-    console.log(startTimeStr);
-    current = new FFplay(src, ["-ss", startTimeStr]);
+    current = new FFplay(src, [`-ss`, startTimeMs / 1000]);
   });
 
   playerSocket.on("pause", async () => {
@@ -39,8 +34,10 @@ module.exports = (playerSocket) => {
 
   playerSocket.on("disconnect", () => {
     if (current) {
+      current?.pause();
       current?.stop();
       current = null;
     }
   });
+  playerSocket.connect();
 };

@@ -4,6 +4,7 @@ const speakerController = require("./speaker-controller");
 
 const SERVER_END_POINT = require("./SERVER");
 const open = require("opn");
+const playerController = require("./player-controller");
 
 const bsmTrackerManager = new Manager(SERVER_END_POINT, {
   transports: ["websocket"],
@@ -12,6 +13,8 @@ const bsmTrackerManager = new Manager(SERVER_END_POINT, {
 });
 
 const speakerSocket = bsmTrackerManager.socket("/speaker");
+const playerSocket = bsmTrackerManager.socket("/player");
 speakerController(speakerSocket);
+playerController(playerSocket);
 
-open(SERVER_END_POINT + "/api/player");
+// open(SERVER_END_POINT + "/api/player");

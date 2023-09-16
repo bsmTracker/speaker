@@ -1,3 +1,4 @@
+# 시도해봄
 import pygame.mixer
 
 # pygame 초기화
