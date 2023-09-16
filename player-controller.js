@@ -1,43 +1,31 @@
-const FFplay = require("ffplay");
-const SERVER_END_POINT = require("./SERVER");
+const { Builder } = require("selenium-webdriver");
+const chrome = require("selenium-webdriver/chrome");
 const { exec } = require("shelljs");
-const ffmpeg = require("ffmpeg");
+const path = require("path");
+const SERVER_END_POINT = require("./SERVER");
 
-let current = null;
+module.exports = async function settingPlayer(playerSocket) {
+  let driver = null;
+  const BROWSER_OPTIONS = new chrome.Options();
+  BROWSER_OPTIONS.addArguments("--autoplay-policy=no-user-gesture-required");
+  const BROWSER_PLATFORM = "chrome";
 
-function setVolume(volume) {
-  if (volume < 0 || volume > 100) return;
-  exec(`/usr/bin/amixer -D pulse sset Master ${volume}%`);
-}
+  exec(`/usr/bin/amixer -D pulse sset Master 100%`);
 
-module.exports = (playerSocket) => {
-  playerSocket.on("play", async (data) => {
-    let src = "";
-    if (data.audio.AudioType === "local") {
-      src += SERVER_END_POINT;
-    }
-    src += data.src;
-    const startTimeMs = data.startTime || 0;
-    current = new FFplay(src, [`-ss`, startTimeMs / 1000]);
+  playerSocket.on("connect", async () => {
+    driver = new Builder();
+    driver.forBrowser(BROWSER_PLATFORM);
+    driver.setChromeOptions(BROWSER_OPTIONS);
+    driver = await driver.build();
+    const playerUrl = path.join(__dirname, "player.html");
+    await driver.get(`file://${playerUrl}?server_url=${SERVER_END_POINT}`);
   });
 
-  playerSocket.on("pause", async () => {
-    if (current) {
-      current.pause();
-      current.stop();
-      current = null;
+  playerSocket.on("disconnect", async () => {
+    if (driver) {
+      await driver.quit();
     }
   });
-  playerSocket.on("volume", async (volume) => {
-    setVolume(volume);
-  });
 
-  playerSocket.on("disconnect", () => {
-    if (current) {
-      current?.pause();
-      current?.stop();
-      current = null;
-    }
-  });
   playerSocket.connect();
 };
