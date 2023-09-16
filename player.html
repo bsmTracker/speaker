@@ -89,6 +89,7 @@
         }
         currentAudio = new Audio(data.src);
         currentAudio.currentTime = data.startTime / 1000;
+        affectVolume();
         currentAudio.play();
         currentAudio.onended = () => {
           currentAudio = null;
