@@ -1,3 +1,3 @@
-const SERVER_END_POINT = "http://localhost:8080";
+const SERVER_END_POINT = "http://10.129.57.9:8080";
 
 module.exports = SERVER_END_POINT;

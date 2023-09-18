@@ -23,7 +23,7 @@ module.exports = async function settingPlayer(playerSocket) {
 
   playerSocket.on("disconnect", async () => {
     if (driver) {
-      await driver.quit();
+      await driver?.quit();
     }
   });
 
