@@ -9,6 +9,6 @@ const bsmTrackerManager = new Manager(SERVER_END_POINT, {
   reconnection: true,
 });
 const speakerSocket = bsmTrackerManager.socket("/speaker");
-const playerSocket = bsmTrackerManager.socket("/player");
+// const playerSocket = bsmTrackerManager.socket("/player");
 speakerController(speakerSocket);
-settingPlayer(playerSocket);
+// settingPlayer(playerSocket);

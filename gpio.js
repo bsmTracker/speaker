@@ -1,13 +1,12 @@
 const { exec } = require("child_process");
 
 function setPin(pin) {
+  console.log(pin);
   exec(`/usr/local/bin/gpio -g mode ${pin} out`);
 }
 
 function setPinCondition(pin, condition) {
-  if (condition !== 1 || condition !== 0) {
-    return;
-  }
+  console.log(pin, condition);
   exec(`/usr/local/bin/gpio -g write ${pin} ${condition}`);
 }
 

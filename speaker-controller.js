@@ -5,15 +5,12 @@ const RELAY_PIN = 26;
 
 module.exports = (playerSocket) => {
   setPin(RELAY_PIN);
-  playerSocket.on("connect", () => {
-    playerSocket.emit("relay");
-    console.log("connected_speaker_controller");
-  });
-
   playerSocket.on("relay", async (data) => {
     if (data === false) {
+      console.log("off");
       setPinCondition(RELAY_PIN, 0);
     } else {
+      console.log("on");
       setPinCondition(RELAY_PIN, 1);
     }
   });
