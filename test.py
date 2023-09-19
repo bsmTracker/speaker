@@ -1,23 +1,38 @@
 # 시도해봄
 
-# import requests
-# import pygame
-# pygame.mixer.init()
+import pyaudio
+import requests
+from pydub import AudioSegment
 
-# def getBuffer(url):
-#     buffer = b''
-#     i = 0
-#     with requests.get(url, stream=True) as r:
-#         r.raise_for_status()
-#         for chunk in r.iter_content(chunk_size=8192):
-#             buffer += chunk
-#     return buffer
+# PyAudio 설정
+FORMAT = pyaudio.paInt16
+CHANNELS = 2
+RATE = 44100
+CHUNK = 1024
 
-# stream_url = 'https://ep256.hostingradio.ru:8052/europaplus256.mp3'
-# audio_data = getBuffer(stream_url)
-# a = pygame.mixer.Sound(buffer=audio_data)
-# # print(audio_data)
-# a.play()
+p = pyaudio.PyAudio()
+stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, output=True, frames_per_buffer=CHUNK)
+
+# 스트리밍 오디오 URL
+stream_url = 'https://example.com/your_streaming_audio.mp3'
+
+# 스트리밍 오디오 요청 및 재생
+response = requests.get(stream_url, stream=True)
+audio = AudioSegment.empty()
+
+for data in response.iter_content(chunk_size=CHUNK):
+    audio += AudioSegment(data)
+    while len(audio) >= CHUNK * 2:
+        stream.write(audio.raw[:CHUNK * 2])
+        audio = audio.raw[CHUNK * 2:]
+
+# 스트리밍 종료
+stream.stop_stream()
+stream.close()
+p.terminate()
+
+
+
 
 
 
@@ -135,45 +150,45 @@
 
 
 
-import pygame
-import requests
-from time import sleep
+# import pygame
+# import requests
+# from time import sleep
 
-test_url = 'https://ep256.hostingradio.ru:8052/europaplus256.mp3'
+# test_url = 'https://ep256.hostingradio.ru:8052/europaplus256.mp3'
 		
-class myfile(object):
-	def __init__(self,url):
-		self.url = url
-		self.file = ''
-		self.pos = 0
-		self.chunk_gen = self.stream()
+# class myfile(object):
+# 	def __init__(self,url):
+# 		self.url = url
+# 		self.file = ''
+# 		self.pos = 0
+# 		self.chunk_gen = self.stream()
 		
-	def stream(self):
-		r = requests.get(self.url, stream=True)
-		for chunk in r.iter_content(chunk_size=40972):		
-			if chunk:
-				self.file+=chunk
-				yield
+# 	def stream(self):
+# 		r = requests.get(self.url, stream=True)
+# 		for chunk in r.iter_content(chunk_size=40972):		
+# 			if chunk:
+# 				self.file+=chunk
+# 				yield
 
-	def read(self,*args):
-		size = args[0]	
-		while self.pos+size>len(self.file):
-			try:
-				self.chunk_gen.next()
-			except StopIteration:
-				break			
-			# print 'have %d bytes, wants %d bytes(diff: %d)'%(len(self.file),self.pos+size,len(self.file)-self.pos+size)
-		if len(args)>0:
-			ret = self.file[self.pos:self.pos+size]
-			self.pos+=size
-			return ret
+# 	def read(self,*args):
+# 		size = args[0]	
+# 		while self.pos+size>len(self.file):
+# 			try:
+# 				self.chunk_gen.next()
+# 			except StopIteration:
+# 				break			
+# 			# print 'have %d bytes, wants %d bytes(diff: %d)'%(len(self.file),self.pos+size,len(self.file)-self.pos+size)
+# 		if len(args)>0:
+# 			ret = self.file[self.pos:self.pos+size]
+# 			self.pos+=size
+# 			return ret
 			
 
-if __name__ == "__main__":
-	pygame.mixer.init()
-	fi = myfile(test_url)
+# if __name__ == "__main__":
+# 	pygame.mixer.init()
+# 	fi = myfile(test_url)
     
-	pygame.mixer.music.load(filename=fi)
-	pygame.mixer.music.play()
-	while pygame.mixer.music.get_busy():
-		sleep(1)
+# 	pygame.mixer.music.load(filename=fi)
+# 	pygame.mixer.music.play()
+# 	while pygame.mixer.music.get_busy():
+# 		sleep(1)
