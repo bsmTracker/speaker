@@ -13,7 +13,11 @@ module.exports = async function settingPlayer(playerSocket) {
 
   playerSocket.on("connect", async () => {
     const playerUrl = path.join(__dirname, "player.html");
-    browser = await puppeteer.launch({ headless: false });
+    browser = await puppeteer.launch({
+      headless: false,
+      executablePath: "/snap/bin/chromium",
+      args: ["--autoplay-policy=no-user-gesture-required"],
+    });
     const page = await browser.newPage();
     page.goto(`file://${playerUrl}?server_url=${SERVER_END_POINT}`);
   });
