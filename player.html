@@ -51,68 +51,69 @@
       communication under the Internet connection.
     </p>
   </body>
+  <!-- 외부 cdn 사용으로 더욱 안정적으로 연결 -->
+  <script
+    src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+    integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+    crossorigin="anonymous"
+  ></script>
+  <!-- 외부 cdn 사용으로 더욱 안정적으로 연결 -->
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const serverUrl = urlParams.get("server_url") || "http://localhost:8080";
-    const SocketScript = document.createElement("script");
-    SocketScript.type = "text/javascript";
-    SocketScript.async = false;
-    SocketScript.src = serverUrl + "/socket.io/socket.io.js";
-    SocketScript.onload = () => {
-      const socket = io.connect(serverUrl + "/player", {
-        transports: ["websocket"],
-        autoConnect: false,
-        reconnection: true,
-      });
+    const socket = io.connect(serverUrl + "/player", {
+      transports: ["websocket"],
+      autoConnect: false,
+      reconnection: true,
+    });
 
-      let volume = 0;
-      let currentAudio = null;
-      let currentBroadCast = null;
+    let volume = 0;
+    let currentAudio = null;
+    let currentBroadCast = null;
 
-      function affectVolume() {
-        if (currentAudio) {
-          currentAudio.volume = volume;
-        }
+    function affectVolume() {
+      if (currentAudio) {
+        currentAudio.volume = volume;
       }
+    }
 
-      socket.on("pause", function () {
-        console.log("pause");
-        if (currentAudio) {
-          currentAudio.pause();
-        }
+    socket.on("pause", function () {
+      console.log("pause");
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+      currentAudio = null;
+    });
+
+    socket.on("play", function (data) {
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+      currentAudio = new Audio(data.src);
+      console.log(data.src);
+      currentAudio.currentTime = data.startTime / 1000;
+      affectVolume();
+      currentAudio.play();
+      currentAudio.onended = () => {
         currentAudio = null;
-      });
+      };
+    });
 
-      socket.on("play", function (data) {
-        if (currentAudio) {
-          currentAudio.pause();
-        }
-        currentAudio = new Audio(data.src);
-        console.log(data.src);
-        currentAudio.currentTime = data.startTime / 1000;
-        affectVolume();
-        currentAudio.play();
-        currentAudio.onended = () => {
-          currentAudio = null;
-        };
-      });
+    socket.on("volume", function (data) {
+      if (data < 0 || data > 100) return;
+      volume = data / 100;
+      affectVolume();
+    });
 
-      socket.on("volume", function (data) {
-        if (data < 0 || data > 100) return;
-        volume = data / 100;
-        affectVolume();
-      });
-
-      socket.on("disconnect", function (data) {
-        if (currentAudio) {
-          currentAudio.pause();
-        }
-        currentAudio = null;
-        affectVolume();
-      });
-      console.log("asert");
-      socket.connect();
-    };
-    document.head.appendChild(SocketScript);
+    socket.on("disconnect", function (data) {
+      console.log("asdfghjk");
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+      currentAudio = null;
+      affectVolume();
+    });
+    console.log("asert");
+    socket.connect();
   </script>
 </html>

@@ -1,5 +1,3 @@
-// const { Builder } = require("selenium-webdriver");
-// const chrome = require("selenium-webdriver/chrome");
 const puppeteer = require("puppeteer");
 const { exec } = require("shelljs");
 const path = require("path");
@@ -12,10 +10,13 @@ module.exports = async function settingPlayer(playerSocket) {
   exec(`/usr/bin/amixer -D pulse sset Master 100%`);
 
   playerSocket.on("connect", async () => {
+    if (browser) {
+      await browser.close();
+    }
     const playerUrl = path.join(__dirname, "player.html");
     browser = await puppeteer.launch({
       headless: false,
-      executablePath: "/snap/bin/chromium",
+      executablePath: "/path/to/Chrome",
       args: ["--autoplay-policy=no-user-gesture-required"],
     });
     const page = await browser.newPage();
