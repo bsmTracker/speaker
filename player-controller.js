@@ -4,9 +4,9 @@ const path = require("path");
 const SERVER_END_POINT = require("./SERVER");
 
 let browser = null;
-
 // executablePath: '/path/to/Chrome'
 module.exports = async function settingPlayer(playerSocket) {
+  //test
   playerSocket.on("connect", async () => {
     exec(`/usr/bin/amixer -D pulse sset Master 100%`);
     if (browser) {
